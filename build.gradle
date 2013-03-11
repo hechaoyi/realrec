@@ -1,0 +1,35 @@
+subprojects {
+	apply plugin: "java"
+	apply plugin: "eclipse"
+	sourceCompatibility = "1.7"
+	ext {
+		mybatisVer = "3.2.1"
+		mysqlVer = "5.1.23"
+	}
+	repositories {
+		mavenCentral()
+		maven { url "http://clojars.org/repo/" }
+	}
+	configurations {
+		compile.extendsFrom provided
+	}
+	jar.from {
+		(configurations.runtime - configurations.provided).collect {
+			it.isDirectory() ? it : zipTree(it)
+		}
+	}
+	eclipse.classpath.noExportConfigurations += configurations.provided
+	eclipse.classpath.defaultOutputDir = file("$buildDir/output")
+}
+
+project("cbox-storm-v1") {
+	apply plugin: "application"
+	dependencies {
+		provided group:"storm", name:"storm", version:"0.8.2"
+		provided group:"com.google.guava", name:"guava"
+		compile  group:"org.mybatis", name:"mybatis", version:"$mybatisVer"
+		runtime  group:"mysql", name:"mysql-connector-java", version:"$mysqlVer"
+	}
+	run.main = "cbox.realrec.driver.LocalTopology"
+	jar.manifest.attributes "Main-Class": "cbox.realrec.driver.RemoteTopology"
+}
