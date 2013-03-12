@@ -3,14 +3,13 @@ package cbox.realrec.protocol.command;
 import static cbox.realrec.protocol.command.ByteBufUtils.readBulk;
 import static cbox.realrec.protocol.command.ByteBufUtils.readInt;
 import static cbox.realrec.protocol.command.ByteBufUtils.readLine;
+import static cbox.realrec.protocol.command.Command.ARGS_SIZE_MARKER;
+import static cbox.realrec.protocol.command.Command.ARG_LENGTH_MARKER;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
 
 public class CommandDecoder extends ReplayingDecoder<Void> {
-
-	public static final byte ARGS_SIZE_MARKER = '*';
-	public static final byte ARG_LENGTH_MARKER = '$';
 
 	@Override
 	protected Object decode(ChannelHandlerContext ctx, ByteBuf in)

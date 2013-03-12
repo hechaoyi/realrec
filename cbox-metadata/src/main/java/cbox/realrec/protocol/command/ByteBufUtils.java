@@ -43,4 +43,16 @@ public final class ByteBufUtils {
 		return readLine(in, length);
 	}
 
+	public static void writeBulk(ByteBuf out, String bulk) {
+		if (bulk == null) {
+			out.writeBytes(NEGCRLF);
+		} else {
+			byte[] bytes = bulk.getBytes(UTF8);
+			out.writeBytes(String.valueOf(bytes.length).getBytes());
+			out.writeBytes(CRLF);
+			out.writeBytes(bytes);
+			out.writeBytes(CRLF);
+		}
+	}
+
 }
