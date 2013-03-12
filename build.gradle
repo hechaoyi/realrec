@@ -6,6 +6,7 @@ subprojects {
 		mybatisVer = "3.2.1"
 		mysqlVer   = "5.1.23"
 		nettyVer   = "4.0.0.Beta2"
+		guavaVer   = "14.0"
 	}
 	repositories {
 		mavenCentral()
@@ -22,7 +23,13 @@ subprojects {
 	eclipse.classpath.defaultOutputDir = file("$buildDir/output")
 }
 
-project("cbox-storm-v1") {
+project(":realrec-common") {
+	dependencies {
+		compile "io.netty:netty-codec:$nettyVer"
+	}
+}
+
+project(":cbox-storm-v1") {
 	apply plugin: "application"
 	dependencies {
 		provided "storm:storm:0.8.2"
@@ -34,8 +41,9 @@ project("cbox-storm-v1") {
 	jar.manifest.attributes["Main-Class"] = "cbox.realrec.driver.RemoteTopology"
 }
 
-project("cbox-metadata") {
+project(":cbox-metadata") {
+	apply plugin: "application"
 	dependencies {
-		compile "io.netty:netty-codec:$nettyVer"
+		compile project(":realrec-common")
 	}
 }
