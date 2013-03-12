@@ -1,6 +1,7 @@
 package cbox.realrec.utils;
 
 public final class LangUtils {
+
 	private LangUtils() {
 	}
 

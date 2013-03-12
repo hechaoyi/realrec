@@ -4,19 +4,19 @@ subprojects {
 	sourceCompatibility = "1.7"
 	ext {
 		mybatisVer = "3.2.1"
-		mysqlVer = "5.1.23"
+		mysqlVer   = "5.1.23"
+		nettyVer   = "4.0.0.Beta2"
 	}
 	repositories {
 		mavenCentral()
 		maven { url "http://clojars.org/repo/" }
+		maven { url "https://repository.cloudera.com/artifactory/cloudera-repos/" }
 	}
 	configurations {
 		compile.extendsFrom provided
 	}
 	jar.from {
-		(configurations.runtime - configurations.provided).collect {
-			it.isDirectory() ? it : zipTree(it)
-		}
+		(configurations.runtime-configurations.provided).collect { it.isDirectory() ? it : zipTree(it) }
 	}
 	eclipse.classpath.noExportConfigurations += configurations.provided
 	eclipse.classpath.defaultOutputDir = file("$buildDir/output")
@@ -25,11 +25,17 @@ subprojects {
 project("cbox-storm-v1") {
 	apply plugin: "application"
 	dependencies {
-		provided group:"storm", name:"storm", version:"0.8.2"
-		provided group:"com.google.guava", name:"guava"
-		compile  group:"org.mybatis", name:"mybatis", version:"$mybatisVer"
-		runtime  group:"mysql", name:"mysql-connector-java", version:"$mysqlVer"
+		provided "storm:storm:0.8.2"
+		provided "com.google.guava:guava"
+		compile  "org.mybatis:mybatis:$mybatisVer"
+		runtime  "mysql:mysql-connector-java:$mysqlVer"
 	}
 	run.main = "cbox.realrec.driver.LocalTopology"
-	jar.manifest.attributes "Main-Class": "cbox.realrec.driver.RemoteTopology"
+	jar.manifest.attributes["Main-Class"] = "cbox.realrec.driver.RemoteTopology"
+}
+
+project("cbox-metadata") {
+	dependencies {
+		compile "io.netty:netty-codec:$nettyVer"
+	}
 }

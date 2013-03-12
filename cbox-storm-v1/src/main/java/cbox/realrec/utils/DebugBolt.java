@@ -6,6 +6,7 @@ import backtype.storm.topology.base.BaseBasicBolt;
 import backtype.storm.tuple.Tuple;
 
 public class DebugBolt extends BaseBasicBolt {
+
 	private static final long serialVersionUID = 4186490815247609011L;
 
 	@Override

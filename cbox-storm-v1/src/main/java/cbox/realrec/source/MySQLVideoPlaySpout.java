@@ -23,6 +23,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 
 public class MySQLVideoPlaySpout extends BaseRichSpout {
+
 	private static final long serialVersionUID = 3905325943237475222L;
 	private SpoutOutputCollector collector;
 	private SqlSessionFactory sessionFactory;
