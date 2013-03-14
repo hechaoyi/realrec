@@ -1,12 +1,14 @@
 subprojects {
 	apply plugin: "java"
 	apply plugin: "eclipse"
+	version = "1.0-SNAPSHOT"
 	sourceCompatibility = "1.7"
 	ext {
 		mybatisVer = "3.2.1"
-		mysqlVer   = "5.1.23"
+		mysqlVer   = "5.1.24"
 		nettyVer   = "4.0.0.Beta2"
 		guavaVer   = "14.0"
+		logbackVer = "1.0.9"
 	}
 	repositories {
 		mavenCentral()
@@ -37,13 +39,15 @@ project(":cbox-storm-v1") {
 		compile  "org.mybatis:mybatis:$mybatisVer"
 		runtime  "mysql:mysql-connector-java:$mysqlVer"
 	}
-	run.main = "cbox.realrec.driver.LocalTopology"
-	jar.manifest.attributes["Main-Class"] = "cbox.realrec.driver.RemoteTopology"
+	run.main = "realrec.cbox.storm.driver.LocalTopology"
+	jar.manifest.attributes["Main-Class"] = "realrec.cbox.storm.driver.RemoteTopology"
 }
 
 project(":cbox-metadata") {
 	apply plugin: "application"
 	dependencies {
 		compile project(":realrec-common")
+		compile "ch.qos.logback:logback-classic:$logbackVer"
 	}
+	mainClassName = "realrec.cbox.metadata.server.MetaDataRequestHandler"
 }

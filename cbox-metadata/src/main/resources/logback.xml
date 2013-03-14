@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<configuration>
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%date{HH:mm:ss.SSS} %-5level [%thread] %logger{32} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<!-- <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>service.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>service.%d{yyyyMMdd}.%i.log.gz</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>10MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+			<maxHistory>100</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%date{HH:mm:ss.SSS} %-5level [%thread] %logger{32} - %msg%n</pattern>
+		</encoder>
+	</appender> -->
+
+	<root level="debug">
+		<appender-ref ref="STDOUT" />
+		<!-- <appender-ref ref="ROLLING" /> -->
+	</root>
+
+	<logger name="io.netty" level="INFO" />
+
+</configuration>
