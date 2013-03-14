@@ -20,6 +20,11 @@ public class MetaDataRequestHandler extends
 
 	private static final Logger log = LoggerFactory
 			.getLogger(MetaDataRequestHandler.class);
+	private HashService hash;
+
+	public MetaDataRequestHandler(HashService hash) {
+		this.hash = hash;
+	}
 
 	@Override
 	protected void messageReceived(ChannelHandlerContext ctx, Command msg)
@@ -31,14 +36,15 @@ public class MetaDataRequestHandler extends
 			switch (tokens[0].toLowerCase()) {
 			case "hash":
 				if (tokens.length == 1) {
-					ctx.write(new ErrorReply("expect more parameters"));
+					ctx.write(new ErrorReply(
+							"expect more parameters: hash <origin>"));
 				} else if (tokens.length == 2) {
-					long id = HashService.instance().hash(tokens[1]);
+					long id = hash.hash(tokens[1]);
 					ctx.write(new IntegerReply(id));
 				} else {
 					IntegerReply[] repls = new IntegerReply[tokens.length - 1];
 					for (int i = 1; i < tokens.length; i++) {
-						long id = HashService.instance().hash(tokens[i]);
+						long id = hash.hash(tokens[i]);
 						repls[i - 1] = new IntegerReply(id);
 					}
 					ctx.write(new MultiBulkReply(repls));
@@ -46,16 +52,15 @@ public class MetaDataRequestHandler extends
 				break;
 			case "show":
 				if (tokens.length == 1) {
-					ctx.write(new ErrorReply("expect more parameters"));
+					ctx.write(new ErrorReply(
+							"expect more parameters: show <hash>"));
 				} else if (tokens.length == 2) {
-					String origin = HashService.instance().show(
-							Long.parseLong(tokens[1]));
+					String origin = hash.show(Long.parseLong(tokens[1]));
 					ctx.write(new BulkReply(origin));
 				} else {
 					BulkReply[] repls = new BulkReply[tokens.length - 1];
 					for (int i = 1; i < tokens.length; i++) {
-						String origin = HashService.instance().show(
-								Long.parseLong(tokens[i]));
+						String origin = hash.show(Long.parseLong(tokens[i]));
 						repls[i - 1] = new BulkReply(origin);
 					}
 					ctx.write(new MultiBulkReply(repls));
