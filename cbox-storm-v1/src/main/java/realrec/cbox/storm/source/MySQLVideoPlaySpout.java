@@ -2,9 +2,12 @@ package realrec.cbox.storm.source;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
@@ -18,17 +21,13 @@ import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.utils.Utils;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Queues;
-
 public class MySQLVideoPlaySpout extends BaseRichSpout {
 
 	private static final long serialVersionUID = 3905325943237475222L;
 	private SpoutOutputCollector collector;
 	private SqlSessionFactory sessionFactory;
-	private Queue<VideoPlay> buffer = Queues.newConcurrentLinkedQueue();
-	private Map<Long, VideoPlay> acks = Maps.newConcurrentMap();
+	private Queue<VideoPlay> buffer = new ConcurrentLinkedQueue<>();
+	private Map<Long, VideoPlay> acks = new ConcurrentHashMap<>();
 	private static final int BATCH_SIZE = 10;
 	private long index = 0;
 
@@ -63,8 +62,11 @@ public class MySQLVideoPlaySpout extends BaseRichSpout {
 			return;
 		}
 		try (SqlSession session = sessionFactory.openSession()) {
+			Map<String, Number> params = new HashMap<>();
+			params.put("start", index);
+			params.put("limit", BATCH_SIZE);
 			List<VideoPlay> plays = session.selectList("VideoPlay.batch",
-					ImmutableMap.of("start", index, "limit", BATCH_SIZE));
+					params);
 			for (VideoPlay play : plays) {
 				buffer.offer(play);
 				acks.put(play.getId(), play);

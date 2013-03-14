@@ -9,11 +9,13 @@ subprojects {
 		nettyVer   = "4.0.0.Beta2"
 		guavaVer   = "14.0"
 		logbackVer = "1.0.9"
+		bdbjeVer   = "5.0.73"
 	}
 	repositories {
 		mavenCentral()
 		maven { url "http://clojars.org/repo/" }
 		maven { url "https://repository.cloudera.com/artifactory/cloudera-repos/" }
+		maven { url "http://download.oracle.com/maven/" }
 	}
 	configurations {
 		compile.extendsFrom provided
@@ -35,7 +37,6 @@ project(":cbox-storm-v1") {
 	apply plugin: "application"
 	dependencies {
 		provided "storm:storm:0.8.2"
-		provided "com.google.guava:guava"
 		compile  "org.mybatis:mybatis:$mybatisVer"
 		runtime  "mysql:mysql-connector-java:$mysqlVer"
 	}
@@ -47,6 +48,8 @@ project(":cbox-metadata") {
 	apply plugin: "application"
 	dependencies {
 		compile project(":realrec-common")
+		compile "com.sleepycat:je:$bdbjeVer"
+		compile "com.google.guava:guava:$guavaVer"
 		compile "ch.qos.logback:logback-classic:$logbackVer"
 	}
 	mainClassName = "realrec.cbox.metadata.server.MetaDataRequestHandler"

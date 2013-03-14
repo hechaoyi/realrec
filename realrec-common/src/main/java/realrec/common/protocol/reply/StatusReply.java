@@ -8,6 +8,7 @@ public class StatusReply implements Reply<String> {
 
 	public static final byte MARKER = '+';
 	public static final StatusReply OK = new StatusReply("OK");
+	public static final StatusReply PONG = new StatusReply("PONG");
 	private String status;
 
 	public StatusReply(String status) {

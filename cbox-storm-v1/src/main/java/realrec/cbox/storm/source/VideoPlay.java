@@ -1,8 +1,7 @@
 package realrec.cbox.storm.source;
 
+import java.util.Arrays;
 import java.util.List;
-
-import com.google.common.collect.Lists;
 
 public class VideoPlay {
 
@@ -66,7 +65,7 @@ public class VideoPlay {
 	}
 
 	public List<Object> toList() {
-		return Lists.<Object> newArrayList(client_id, videoset_id, video_id,
+		return Arrays.<Object> asList(client_id, videoset_id, video_id,
 				played_time, type);
 	}
 
