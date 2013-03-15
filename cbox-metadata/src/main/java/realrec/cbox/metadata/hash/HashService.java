@@ -1,62 +1,55 @@
 package realrec.cbox.metadata.hash;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
+import realrec.cbox.metadata.bdb.BerkeleyDB;
+import realrec.cbox.metadata.hash.HashRecord.Domain;
+
 import com.google.common.hash.Hashing;
 
-public class HashService implements Closeable {
+public class HashService {
 
 	private static final Logger log = LoggerFactory
 			.getLogger(HashService.class);
-	private BiMap<String, Long> originToId = HashBiMap.create();
-	private Map<Long, String> idToOrigin = originToId.inverse();
+	private Map<Long, HashRecord> hash2rcd;
+	private Map<String, HashRecord> orig2rcd;
 
-	public long hash(String origin) {
-		synchronized (this) {
-			if (originToId.containsKey(origin))
-				return originToId.get(origin);
-			long id = doHash(origin);
-			originToId.put(origin, id);
-			return id;
-		}
+	public HashService(BerkeleyDB bdb) {
+		hash2rcd = bdb.hash2rcd();
+		orig2rcd = bdb.orig2rcd();
 	}
 
-	public String show(long id) {
-		synchronized (this) {
-			return idToOrigin.get(id);
-		}
+	public long hash(Domain domain, String origin) {
+		if (orig2rcd.containsKey(origin))
+			return orig2rcd.get(origin).getHash();
+		long hash = doHash(origin);
+		HashRecord hr = new HashRecord();
+		hr.setHash(hash);
+		hr.setOrigin(origin);
+		hr.setDomain(domain);
+		hash2rcd.put(hash, hr);
+		return hash;
+	}
+
+	public HashRecord show(long hash) {
+		return hash2rcd.get(hash);
 	}
 
 	private long doHash(String origin) {
-		long id = Hashing.md5().hashString(origin).padToLong();
-		if (id < 0)
-			id = id >>> 1;
-		if (originToId.containsValue(id)) {
+		long hash = Hashing.md5().hashString(origin).padToLong();
+		if (hash < 0)
+			hash >>>= 1;
+		if (hash2rcd.containsKey(hash)) {
 			int offset = 1;
-			while ((originToId.containsValue(id + offset) && id + offset < Long.MAX_VALUE))
+			while ((hash2rcd.containsKey(hash + offset) && hash + offset < Long.MAX_VALUE))
 				offset++;
 			log.warn("hash conflict, origin: {}, hash: {}, offset: {}", origin,
-					id, offset);
+					hash, offset);
 		}
-		return id;
-	}
-
-	private static final HashService instance = new HashService();
-
-	public static HashService init() {
-		return instance;
-	}
-
-	@Override
-	public void close() throws IOException {
-
+		return hash;
 	}
 
 }

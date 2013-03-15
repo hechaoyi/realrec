@@ -52,5 +52,5 @@ project(":cbox-metadata") {
 		compile "com.google.guava:guava:$guavaVer"
 		compile "ch.qos.logback:logback-classic:$logbackVer"
 	}
-	mainClassName = "realrec.cbox.metadata.server.MetaDataRequestHandler"
+	mainClassName = "realrec.cbox.metadata.server.MetaDataServer"
 }

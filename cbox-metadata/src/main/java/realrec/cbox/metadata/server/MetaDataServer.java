@@ -10,7 +10,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import realrec.cbox.metadata.hash.HashService;
+import realrec.cbox.metadata.bdb.BerkeleyDB;
 import realrec.common.protocol.command.CommandDecoder;
 import realrec.common.protocol.reply.ReplyEncoder;
 
@@ -21,7 +21,7 @@ public class MetaDataServer {
 
 	public static void main(String[] args) throws Exception {
 		ServerBootstrap sb = new ServerBootstrap();
-		try (HashService hash = HashService.init()) {
+		try (BerkeleyDB bdb = BerkeleyDB.instance("bdb")) {
 			ChannelFuture cf = sb.channel(NioServerSocketChannel.class)
 					.group(new NioEventLoopGroup()).localAddress(5587)
 					.childHandler(new ChannelInitializer<SocketChannel>() {
@@ -30,7 +30,7 @@ public class MetaDataServer {
 								throws Exception {
 							channel.pipeline().addLast(new ReplyEncoder(),
 									new CommandDecoder(),
-									new MetaDataRequestHandler(hash));
+									new MetaDataRequestHandler(bdb));
 						}
 					}).bind().sync();
 			log.info("ready");
