@@ -7,9 +7,10 @@ subprojects {
 		mybatisVer = "3.2.1"
 		mysqlVer   = "5.1.24"
 		nettyVer   = "4.0.0.Beta2"
+		bdbjeVer   = "5.0.73"
 		guavaVer   = "14.0"
 		logbackVer = "1.0.9"
-		bdbjeVer   = "5.0.73"
+		slf4jVer   = "1.7.2"
 	}
 	repositories {
 		mavenCentral()
@@ -30,17 +31,23 @@ subprojects {
 project(":realrec-common") {
 	dependencies {
 		compile "io.netty:netty-codec:$nettyVer"
+		compile "org.slf4j:slf4j-api:$slf4jVer"
 	}
 }
 
 project(":cbox-storm-v1") {
 	apply plugin: "application"
 	dependencies {
+		compile project(":realrec-common")
 		provided "storm:storm:0.8.2"
+		provided "com.google.guava:guava"
 		compile  "org.mybatis:mybatis:$mybatisVer"
 		runtime  "mysql:mysql-connector-java:$mysqlVer"
 	}
-	run.main = "realrec.cbox.storm.driver.LocalTopology"
+	run {
+		main = "realrec.cbox.storm.driver.LocalTopology"
+		systemProperties["metadata.hosts"] = "macbookair:5587"
+	}
 	jar.manifest.attributes["Main-Class"] = "realrec.cbox.storm.driver.RemoteTopology"
 }
 
@@ -53,4 +60,5 @@ project(":cbox-metadata") {
 		compile "ch.qos.logback:logback-classic:$logbackVer"
 	}
 	mainClassName = "realrec.cbox.metadata.server.MetaDataServer"
+	jar.manifest.attributes["Main-Class"] = mainClassName
 }

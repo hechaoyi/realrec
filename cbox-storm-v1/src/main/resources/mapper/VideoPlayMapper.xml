@@ -3,7 +3,7 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="VideoPlay">
-	<select id="batch" parameterType="hashmap" resultType="cbox.realrec.source.VideoPlay">
+	<select id="batch" parameterType="hashmap" resultType="realrec.cbox.storm.source.VideoPlay">
 		select * from cbox_stats_videoplay limit #{start}, #{limit}
 	</select>
 </mapper>

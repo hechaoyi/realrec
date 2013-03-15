@@ -28,7 +28,7 @@ public class MySQLVideoPlaySpout extends BaseRichSpout {
 	private SqlSessionFactory sessionFactory;
 	private Queue<VideoPlay> buffer = new ConcurrentLinkedQueue<>();
 	private Map<Long, VideoPlay> acks = new ConcurrentHashMap<>();
-	private static final int BATCH_SIZE = 10;
+	private static final int BATCH_SIZE = 10; // TODO test
 	private long index = 0;
 
 	@SuppressWarnings("rawtypes")
@@ -58,7 +58,7 @@ public class MySQLVideoPlaySpout extends BaseRichSpout {
 
 	private synchronized void tryFillBuffer() {
 		if (index == -1) {
-			Utils.sleep(60000);
+			Utils.sleep(60000); // over
 			return;
 		}
 		try (SqlSession session = sessionFactory.openSession()) {
@@ -73,6 +73,7 @@ public class MySQLVideoPlaySpout extends BaseRichSpout {
 			}
 			index = plays.size() > 0 ? index + plays.size() : -1;
 		}
+		// TODO test
 		Utils.sleep(10000);
 	}
 
