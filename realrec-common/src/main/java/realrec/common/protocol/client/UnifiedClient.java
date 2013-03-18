@@ -7,7 +7,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.util.AttributeKey;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -15,11 +14,11 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Random;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,37 +32,43 @@ public class UnifiedClient implements Closeable {
 
 	private static final Logger log = LoggerFactory
 			.getLogger(UnifiedClient.class);
-	public static final AttributeKey<Queue<Promise<Reply<?>>>> PROMISE_QUEUE = new AttributeKey<>(
-			"PromiseQueue");
-	private static ExecutorService executor = Executors.newCachedThreadPool();
-	private static Random rand = new Random();
+	private static ScheduledExecutorService executor = Executors
+			.newSingleThreadScheduledExecutor();
+	public static final int RECONNECT_INTERVAL = 5;
+	public static final int APPLY_CHANNEL_TIMEOUT = 1;
 	private EventLoopGroup group;
-	private List<SocketChannel> channels;
+	private BlockingQueue<SocketChannel> channels;
+	private volatile boolean closed;
 
 	public UnifiedClient(String hosts, int nConns, int nThreads) {
 		group = new NioEventLoopGroup(nThreads);
-		channels = new CopyOnWriteArrayList<>();
+		channels = new LinkedBlockingQueue<>();
+		closed = false;
 		for (InetSocketAddress addr : parseHosts(hosts))
 			for (int i = 0; i < nConns; i++)
-				add(addr);
+				connect(addr);
 	}
 
 	@Override
 	public void close() throws IOException {
-		executor.shutdown();
+		closed = true;
+		for (SocketChannel channel : channels)
+			channel.close();
 		group.shutdown();
 	}
 
 	public Promise<Reply<?>> send(Command command) {
-		SocketChannel channel;
-		synchronized (channels) {
-			int size = channels.size();
-			if (size == 0)
-				throw new IllegalStateException("no active channel available");
-			channel = channels.get(rand.nextInt(size));
+		SocketChannel channel = null;
+		try {
+			channel = channels.poll(APPLY_CHANNEL_TIMEOUT, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 		}
-		Queue<Promise<Reply<?>>> queue = channel.attr(PROMISE_QUEUE).get();
-
+		if (channel == null)
+			throw new IllegalStateException("no active channel available");
+		channels.offer(channel);
+		Queue<Promise<Reply<?>>> queue = channel.attr(
+				UnifiedClientHandler.PROMISE_QUEUE).get();
 		Promise<Reply<?>> reply = new Promise<>();
 		synchronized (queue) {
 			queue.offer(reply);
@@ -91,54 +96,36 @@ public class UnifiedClient implements Closeable {
 		return addrs;
 	}
 
-	private void add(InetSocketAddress addr) {
+	private void connect(final InetSocketAddress addr) {
+		if (closed)
+			return;
 		SocketChannel channel = new NioSocketChannel();
 		channel.pipeline().addLast(new CommandEncoder(), new ReplyDecoder(),
 				new UnifiedClientHandler());
 		group.register(channel).syncUninterruptibly();
 		if (!channel.connect(addr).syncUninterruptibly().isSuccess())
 			throw new ChannelException("cannot connect to host: " + addr);
-		channel.closeFuture().addListener(new ReconnectAfterClose(addr));
-		channels.add(channel);
-		System.out.println(channels.size());
-		channel.attr(PROMISE_QUEUE).set(
-				new ConcurrentLinkedQueue<Promise<Reply<?>>>());
-	}
-
-	private class ReconnectAfterClose implements ChannelFutureListener {
-
-		InetSocketAddress addr;
-
-		ReconnectAfterClose(InetSocketAddress addr) {
-			this.addr = addr;
-		}
-
-		@Override
-		public void operationComplete(ChannelFuture future) throws Exception {
-			channels.remove(future.channel());
-			System.out.println(channels.size());
-			if (!executor.isShutdown())
-				executor.execute(reconnect);
-		}
-
-		Runnable reconnect = new Runnable() {
+		channels.offer(channel);
+		channel.closeFuture().addListener(new ChannelFutureListener() {
 			@Override
-			public void run() {
-				try {
-					add(addr);
-				} catch (ChannelException e) {
-					log.warn("reconnect {} error: {}", addr, e.getMessage());
-					try {
-						Thread.sleep(5000);
-						if (!executor.isShutdown())
-							executor.execute(reconnect);
-					} catch (InterruptedException e1) {
-						Thread.currentThread().interrupt();
+			public void operationComplete(ChannelFuture future)
+					throws Exception {
+				channels.remove(future.channel());
+				executor.execute(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							connect(addr);
+						} catch (ChannelException e) {
+							log.warn("reconnect {} error: {}", addr,
+									e.getMessage());
+							executor.schedule(this, RECONNECT_INTERVAL,
+									TimeUnit.SECONDS);
+						}
 					}
-				}
+				});
 			}
-		};
-
+		});
 	}
 
 }

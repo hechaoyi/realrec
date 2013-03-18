@@ -22,6 +22,14 @@ public class Promise<T> implements Future<T> {
 		return sync.get();
 	}
 
+	public T result() {
+		try {
+			return sync.get();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	@Override
 	public boolean isDone() {
 		return sync.isDone();
@@ -92,8 +100,10 @@ public class Promise<T> implements Future<T> {
 					return value;
 			case CANCELLED:
 			case INTERRUPTED:
-				throw cancellationExceptionWithCause("Task was cancelled.",
-						exception);
+				CancellationException ex = new CancellationException(
+						"Task was cancelled.");
+				ex.initCause(exception);
+				throw ex;
 			default:
 				throw new IllegalStateException(
 						"Error, synchronizer in invalid state: " + state);
@@ -136,13 +146,6 @@ public class Promise<T> implements Future<T> {
 			}
 			return doCompletion;
 		}
-	}
-
-	static final CancellationException cancellationExceptionWithCause(
-			String message, Throwable cause) {
-		CancellationException exception = new CancellationException(message);
-		exception.initCause(cause);
-		return exception;
 	}
 
 }

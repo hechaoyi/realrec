@@ -30,7 +30,7 @@ public class MetaDataRequestHandler extends
 	}
 
 	@Override
-	protected void messageReceived(ChannelHandlerContext ctx, Command msg)
+	public void messageReceived(ChannelHandlerContext ctx, Command msg)
 			throws Exception {
 		try {
 			String[] tokens = msg.tokens();

@@ -6,10 +6,10 @@ subprojects {
 	ext {
 		mybatisVer = "3.2.1"
 		mysqlVer   = "5.1.24"
-		nettyVer   = "4.0.0.Beta2"
+		nettyVer   = "4.0.0.Beta3"
 		bdbjeVer   = "5.0.73"
-		guavaVer   = "14.0"
-		logbackVer = "1.0.9"
+		guavaVer   = "14.0.1"
+		logbackVer = "1.0.10"
 		slf4jVer   = "1.7.2"
 	}
 	repositories {
@@ -35,6 +35,18 @@ project(":realrec-common") {
 	}
 }
 
+project(":cbox-metadata") {
+	apply plugin: "application"
+	dependencies {
+		compile project(":realrec-common")
+		compile "com.sleepycat:je:$bdbjeVer"
+		compile "com.google.guava:guava:$guavaVer"
+		compile "ch.qos.logback:logback-classic:$logbackVer"
+	}
+	mainClassName = "realrec.cbox.metadata.server.MetaDataServer"
+	jar.manifest.attributes["Main-Class"] = mainClassName
+}
+
 project(":cbox-storm-v1") {
 	apply plugin: "application"
 	dependencies {
@@ -49,16 +61,4 @@ project(":cbox-storm-v1") {
 		systemProperties["metadata.hosts"] = "macbookair:5587"
 	}
 	jar.manifest.attributes["Main-Class"] = "realrec.cbox.storm.driver.RemoteTopology"
-}
-
-project(":cbox-metadata") {
-	apply plugin: "application"
-	dependencies {
-		compile project(":realrec-common")
-		compile "com.sleepycat:je:$bdbjeVer"
-		compile "com.google.guava:guava:$guavaVer"
-		compile "ch.qos.logback:logback-classic:$logbackVer"
-	}
-	mainClassName = "realrec.cbox.metadata.server.MetaDataServer"
-	jar.manifest.attributes["Main-Class"] = mainClassName
 }
