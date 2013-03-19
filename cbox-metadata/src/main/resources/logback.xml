@@ -22,11 +22,11 @@
 		</encoder>
 	</appender> -->
 
-	<root level="debug">
+	<root level="info">
 		<appender-ref ref="STDOUT" />
 		<!-- <appender-ref ref="ROLLING" /> -->
 	</root>
 
-	<logger name="io.netty" level="INFO" />
+	<logger name="realrec.cbox.metadata" level="debug" />
 
 </configuration>

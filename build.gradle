@@ -46,6 +46,8 @@ project(":cbox-metadata") {
 		compile "com.sleepycat:je:$bdbjeVer"
 		compile "com.google.guava:guava:$guavaVer"
 		compile "ch.qos.logback:logback-classic:$logbackVer"
+		compile  "org.mybatis:mybatis:$mybatisVer"
+		runtime  "mysql:mysql-connector-java:$mysqlVer"
 	}
 	mainClassName = "realrec.cbox.metadata.server.MetaDataServer"
 	jar.manifest.attributes["Main-Class"] = mainClassName

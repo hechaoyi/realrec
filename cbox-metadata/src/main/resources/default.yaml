@@ -1,4 +1,4 @@
 ---
-dataDir: bdb
+dataDir: build/bdb
 # bind: 0.0.0.0
 # port: 5587

@@ -1,16 +1,17 @@
 package realrec.cbox.metadata.server;
 
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import realrec.cbox.metadata.bdb.BerkeleyDB;
 import realrec.cbox.metadata.hash.HashRecord;
 import realrec.cbox.metadata.hash.HashRecord.Domain;
 import realrec.cbox.metadata.hash.HashService;
+import realrec.cbox.metadata.video.VideoService;
 import realrec.common.protocol.command.Command;
 import realrec.common.protocol.reply.BulkReply;
 import realrec.common.protocol.reply.ErrorReply;
@@ -18,15 +19,19 @@ import realrec.common.protocol.reply.IntegerReply;
 import realrec.common.protocol.reply.MultiBulkReply;
 import realrec.common.protocol.reply.StatusReply;
 
+@Sharable
 public class MetaDataRequestHandler extends
 		ChannelInboundMessageHandlerAdapter<Command> {
 
 	private static final Logger log = LoggerFactory
 			.getLogger(MetaDataRequestHandler.class);
 	private HashService hashService;
+	private VideoService videoService;
 
-	public MetaDataRequestHandler(BerkeleyDB bdb) {
-		hashService = new HashService(bdb);
+	public MetaDataRequestHandler(HashService hashService,
+			VideoService videoService) {
+		this.hashService = hashService;
+		this.videoService = videoService;
 	}
 
 	@Override
@@ -48,6 +53,12 @@ public class MetaDataRequestHandler extends
 					ctx.write(new ErrorReply("usage: show <hash>"));
 				else
 					ctx.write(show(tokens[1]));
+				break;
+			case "length":
+				if (tokens.length < 2)
+					ctx.write(new ErrorReply("usage: length <video_id>"));
+				else
+					ctx.write(length(tokens[1]));
 				break;
 			case "ping":
 				ctx.write(StatusReply.PONG);
@@ -78,6 +89,11 @@ public class MetaDataRequestHandler extends
 			repls[1] = new BulkReply(hr.getDomain().name());
 			return new MultiBulkReply(repls);
 		}
+	}
+
+	private BulkReply length(String videoId) {
+		String length = videoService.videoLength(videoId);
+		return new BulkReply(length);
 	}
 
 	@Override
