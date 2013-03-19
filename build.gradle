@@ -5,7 +5,7 @@ subprojects {
 	sourceCompatibility = "1.7"
 	ext {
 		nettyVer   = "4.0.0.Beta3"
-		slf4jVer   = "1.7.2"
+		slf4jVer   = "1.7.4"
 		jacksonVer = "2.1.4"
 		bdbjeVer   = "5.0.73"
 		guavaVer   = "14.0.1"
@@ -57,12 +57,10 @@ project(":cbox-storm-v1") {
 		compile project(":realrec-common")
 		provided "storm:storm:$stormVer"
 		provided "com.google.guava:guava"
+		provided "org.slf4j:slf4j-log4j12:$slf4jVer"
 		compile  "org.mybatis:mybatis:$mybatisVer"
 		runtime  "mysql:mysql-connector-java:$mysqlVer"
 	}
-	run {
-		main = "realrec.cbox.storm.driver.LocalTopology"
-		systemProperties["metadata.hosts"] = "macbookair:5587"
-	}
+	run.main = "realrec.cbox.storm.driver.LocalTopology"
 	jar.manifest.attributes["Main-Class"] = "realrec.cbox.storm.driver.RemoteTopology"
 }

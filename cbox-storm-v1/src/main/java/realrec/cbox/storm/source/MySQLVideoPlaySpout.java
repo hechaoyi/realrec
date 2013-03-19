@@ -14,6 +14,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
+import realrec.cbox.storm.driver.TopologyConfig;
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
@@ -26,10 +27,11 @@ public class MySQLVideoPlaySpout extends BaseRichSpout {
 	private static final long serialVersionUID = 3905325943237475222L;
 	private SpoutOutputCollector collector;
 	private SqlSessionFactory sessionFactory;
+	private long batchSize;
+	private long index;
+	private long wait;
 	private Queue<VideoPlay> buffer = new ConcurrentLinkedQueue<>();
 	private Map<Long, VideoPlay> acks = new ConcurrentHashMap<>();
-	private static final int BATCH_SIZE = 10; // TODO test
-	private long index = 0;
 
 	@SuppressWarnings("rawtypes")
 	@Override
@@ -42,6 +44,9 @@ public class MySQLVideoPlaySpout extends BaseRichSpout {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+		batchSize = (long) conf.get(TopologyConfig.MYSQL_BATCH_SIZE);
+		index = 0;
+		wait = (long) conf.get(TopologyConfig.MYSQL_WAIT_MILLIS);
 	}
 
 	@Override
@@ -64,7 +69,7 @@ public class MySQLVideoPlaySpout extends BaseRichSpout {
 		try (SqlSession session = sessionFactory.openSession()) {
 			Map<String, Number> params = new HashMap<>();
 			params.put("start", index);
-			params.put("limit", BATCH_SIZE);
+			params.put("limit", batchSize);
 			List<VideoPlay> plays = session.selectList("VideoPlay.batch",
 					params);
 			for (VideoPlay play : plays) {
@@ -73,8 +78,8 @@ public class MySQLVideoPlaySpout extends BaseRichSpout {
 			}
 			index = plays.size() > 0 ? index + plays.size() : -1;
 		}
-		// TODO test
-		Utils.sleep(10000);
+		if (wait >= 0)
+			Utils.sleep(wait);
 	}
 
 	@Override

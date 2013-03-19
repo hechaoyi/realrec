@@ -1,5 +1,10 @@
 package realrec.cbox.storm.preproc;
 
+import static realrec.cbox.storm.driver.TopologyConfig.HASH_CACHE_HOURS;
+import static realrec.cbox.storm.driver.TopologyConfig.METADATA_CONNS;
+import static realrec.cbox.storm.driver.TopologyConfig.METADATA_HOSTS;
+import static realrec.cbox.storm.driver.TopologyConfig.METADATA_THREADS;
+
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -8,7 +13,6 @@ import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 
-import realrec.cbox.storm.driver.RemoteTopology;
 import realrec.common.protocol.client.UnifiedClient;
 import realrec.common.protocol.command.Command;
 import realrec.common.protocol.reply.IntegerReply;
@@ -35,11 +39,15 @@ public class VideoPlayNormalizeBolt extends BaseBasicBolt {
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public void prepare(Map stormConf, TopologyContext context) {
-		metadata = new UnifiedClient(
-				(String) stormConf.get(RemoteTopology.METADATA_HOSTS), 8, 4);
-		hashes = CacheBuilder.newBuilder().expireAfterAccess(6, TimeUnit.HOURS)
-				.build(new CacheLoader<String, Long>() {
+	public void prepare(Map conf, TopologyContext context) {
+		metadata = new UnifiedClient((String) conf.get(METADATA_HOSTS),
+				(int) (long) conf.get(METADATA_CONNS),
+				(int) (long) conf.get(METADATA_THREADS));
+
+		hashes = CacheBuilder
+				.newBuilder()
+				.expireAfterAccess((long) conf.get(HASH_CACHE_HOURS),
+						TimeUnit.HOURS).build(new CacheLoader<String, Long>() {
 					@Override
 					public Long load(String key) throws Exception {
 						int idx = key.indexOf(':');
