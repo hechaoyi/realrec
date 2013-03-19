@@ -33,6 +33,8 @@ public class TopologyConfig extends Configuration {
 	private long metadataThreads = 4;
 	@JsonProperty
 	private long hashCacheHours = 6;
+	@JsonProperty
+	private long detailCacheHours = 6;
 
 	public String getName() {
 		return name;
@@ -90,13 +92,22 @@ public class TopologyConfig extends Configuration {
 		this.hashCacheHours = hashCacheHours;
 	}
 
+	public long getDetailCacheHours() {
+		return detailCacheHours;
+	}
+
+	public void setDetailCacheHours(long detailCacheHours) {
+		this.detailCacheHours = detailCacheHours;
+	}
+
 	@Override
 	public void initialize() throws Exception {
-		log.info("configuration loaded. name: {}, mysqlBatchSize: {}, "
-				+ "mysqlWaitMillis: {}, metadataHosts: {}, metadataConns: {}, "
-				+ "metadataThreads: {}, hashCacheHours: {}", name,
+		log.info("configuration loaded. "
+				+ "name: {}, mysqlBatchSize: {}, mysqlWaitMillis: {}, "
+				+ "metadataHosts: {}, metadataConns: {}, metadataThreads: {}, "
+				+ "hashCacheHours: {}, detailCacheHours: {}", name,
 				mysqlBatchSize, mysqlWaitMillis, metadataHosts, metadataConns,
-				metadataThreads, hashCacheHours);
+				metadataThreads, hashCacheHours, detailCacheHours);
 	}
 
 	public static final String MYSQL_BATCH_SIZE = "mysqlBatchSize";
@@ -105,6 +116,7 @@ public class TopologyConfig extends Configuration {
 	public static final String METADATA_CONNS = "metadataConns";
 	public static final String METADATA_THREADS = "metadataThreads";
 	public static final String HASH_CACHE_HOURS = "hashCacheHours";
+	public static final String DETAIL_CACHE_HOURS = "detailCacheHours";
 
 	public Config config() {
 		Config conf = new Config();
@@ -114,6 +126,7 @@ public class TopologyConfig extends Configuration {
 		conf.put(METADATA_CONNS, metadataConns);
 		conf.put(METADATA_THREADS, metadataThreads);
 		conf.put(HASH_CACHE_HOURS, hashCacheHours);
+		conf.put(DETAIL_CACHE_HOURS, detailCacheHours);
 		return conf;
 	}
 

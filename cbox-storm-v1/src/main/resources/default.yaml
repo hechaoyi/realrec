@@ -6,3 +6,4 @@ metadataHosts: 127.0.0.1:5587
 metadataConns: 8
 metadataThreads: 4
 hashCacheHours: 6
+detailCacheHours: 6

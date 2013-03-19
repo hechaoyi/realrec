@@ -16,7 +16,7 @@ public class Command {
 		tokens = inline.split("\\s+");
 	}
 
-	public Command(String[] unified) {
+	public Command(String... unified) {
 		tokens = unified;
 	}
 
