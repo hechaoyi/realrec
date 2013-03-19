@@ -33,14 +33,11 @@ public class BerkeleyDB implements Closeable {
 	private Map<Long, HashRecord> hash2rcd;
 	private Map<String, HashRecord> orig2rcd;
 
-	private BerkeleyDB(String envHome) {
+	private BerkeleyDB(File envHome) {
 		EnvironmentConfig envCfg = new EnvironmentConfig().setAllowCreate(true)
 				.setTransactional(true);
 		envCfg.setDurability(Durability.COMMIT_WRITE_NO_SYNC);
-		File envHomeDir = new File(envHome);
-		if (!envHomeDir.exists())
-			envHomeDir.mkdirs();
-		env = new Environment(envHomeDir, envCfg);
+		env = new Environment(envHome, envCfg);
 
 		hashRcdDB = env.openDatabase(null, HASH_RECORD_DBNAME,
 				new DatabaseConfig().setAllowCreate(true)
@@ -107,7 +104,7 @@ public class BerkeleyDB implements Closeable {
 
 	private static BerkeleyDB instance = null;
 
-	public static BerkeleyDB instance(String envHome) {
+	public static BerkeleyDB instance(File envHome) {
 		if (instance == null) {
 			synchronized (BerkeleyDB.class) {
 				if (instance == null)
