@@ -6,6 +6,8 @@ import static realrec.cbox.storm.driver.TopologyConfig.METADATA_CONNS;
 import static realrec.cbox.storm.driver.TopologyConfig.METADATA_HOSTS;
 import static realrec.cbox.storm.driver.TopologyConfig.METADATA_THREADS;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -30,8 +32,6 @@ import backtype.storm.tuple.Tuple;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
 
 public class VideoPlayNormalizeBolt extends BaseBasicBolt {
 
@@ -81,7 +81,12 @@ public class VideoPlayNormalizeBolt extends BaseBasicBolt {
 
 	@Override
 	public void cleanup() {
-		Closeables.closeQuietly(metadata);
+		try {
+			if (metadata != null)
+				metadata.close();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
@@ -93,15 +98,13 @@ public class VideoPlayNormalizeBolt extends BaseBasicBolt {
 			int playedTime = seconds(input.getStringByField("played_time"));
 			if (Type.valueOf(input.getStringByField("type")) == Type.vod) {
 				int videoTime = lengths.get(videoId);
-				collector.emit(Lists
-						.<Object> newArrayList(hash("user", userId),
-								hash("videoset", videoSetId),
-								hash("video", videoId),
-								scoreVOD(playedTime, videoTime)));
+				collector.emit(Arrays.<Object> asList(hash("user", userId),
+						hash("videoset", videoSetId), hash("video", videoId),
+						scoreVOD(playedTime, videoTime)));
 			} else {
-				collector.emit(Lists.<Object> newArrayList(
-						hash("user", userId), hash("videoset", videoSetId),
-						hash("video", videoId), scoreP2P(playedTime)));
+				collector.emit(Arrays.<Object> asList(hash("user", userId),
+						hash("videoset", videoSetId), hash("video", videoId),
+						scoreP2P(playedTime)));
 			}
 		} catch (Exception e) {
 			throw new FailedException(e);

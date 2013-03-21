@@ -76,8 +76,8 @@ project(":cbox-storm-v1") {
 		runtime  "mysql:mysql-connector-java:$mysqlVer"
 		// HBase
 		compile "org.apache.hbase:hbase:$hbaseVer", { transitive = false }
-		compile "com.google.protobuf:protobuf-java:2.4.0a"
-		compile "commons-configuration:commons-configuration:1.6"
+		compile "com.google.protobuf:protobuf-java:2.4.0a", { transitive = false }
+		compile "commons-configuration:commons-configuration:1.6", { transitive = false }
 		compile "org.apache.hadoop:hadoop-common:$hadoopVer", { transitive = false }
 		compile "org.apache.hadoop:hadoop-auth:$hadoopVer", { transitive = false }
 	}

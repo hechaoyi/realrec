@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import realrec.cbox.storm.hbase.VideoPlayHBaseBolt;
+import realrec.cbox.storm.hbase.VideoSetPrefUpdtHBaseBolt;
 import realrec.cbox.storm.proc.VideoPlayNormalizeBolt;
 import realrec.cbox.storm.source.MySQLVideoPlaySpout;
 import realrec.cbox.storm.utils.DebugBolt;
@@ -134,11 +135,13 @@ public class TopologyConfig extends Configuration {
 	public StormTopology build() {
 		TopologyBuilder builder = new TopologyBuilder();
 		builder.setSpout("mysql", new MySQLVideoPlaySpout(), 1);
-		builder.setBolt("normalize", new VideoPlayNormalizeBolt(), 4)
+		builder.setBolt("normalize", new VideoPlayNormalizeBolt())
 				.fieldsGrouping("mysql", new Fields("video_id"));
-		builder.setBolt("hbase", new VideoPlayHBaseBolt(), 4).shuffleGrouping(
-				"normalize");
-		builder.setBolt("debug", new DebugBolt()).shuffleGrouping("hbase");
+		builder.setBolt("hbase", new VideoPlayHBaseBolt()).fieldsGrouping(
+				"normalize", new Fields("user_id", "videoset_id"));
+		builder.setBolt("prefUpdt", new VideoSetPrefUpdtHBaseBolt())
+				.fieldsGrouping("hbase", new Fields("user_id", "videoset_id"));
+		builder.setBolt("debug", new DebugBolt()).shuffleGrouping("prefUpdt");
 		return builder.createTopology();
 	}
 

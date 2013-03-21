@@ -1,6 +1,7 @@
 package realrec.cbox.storm.hbase;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
@@ -18,12 +19,9 @@ import backtype.storm.topology.base.BaseBasicBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 
-import com.google.common.collect.Lists;
-
 public class VideoPlayHBaseBolt extends BaseBasicBolt {
 
 	private static final long serialVersionUID = -5163932866345752592L;
-	private static final String tableName = "cbox_user_video_preferences";
 	private static final byte[] columnFamily = "cf".getBytes();
 	private HTable table;
 
@@ -32,7 +30,7 @@ public class VideoPlayHBaseBolt extends BaseBasicBolt {
 	public void prepare(Map conf, TopologyContext context) {
 		try {
 			Configuration config = HBaseConfiguration.create();
-			table = new HTable(config, tableName);
+			table = new HTable(config, "cbox_user_video_preferences");
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -56,11 +54,11 @@ public class VideoPlayHBaseBolt extends BaseBasicBolt {
 			long videoId = input.getLongByField("video_id");
 			float preference = input.getFloatByField("preference");
 			byte[] row = rowKey(userId, videoSetId);
-			byte[] col = (videoId + ":played").getBytes();
+			byte[] col = Bytes.toBytes(videoId + ":played");
 			Float lastPref = get(row, col);
 			if (lastPref == null || preference > lastPref) {
 				put(row, col, preference);
-				collector.emit(Lists.<Object> newArrayList(userId, videoSetId));
+				collector.emit(Arrays.<Object> asList(userId, videoSetId));
 			}
 		} catch (IOException e) {
 			throw new FailedException(e);
