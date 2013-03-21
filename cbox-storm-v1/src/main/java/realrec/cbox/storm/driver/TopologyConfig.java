@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import realrec.cbox.storm.hbase.VideoPlayHBaseBolt;
 import realrec.cbox.storm.hbase.VideoSetPrefUpdtHBaseBolt;
+import realrec.cbox.storm.notice.UserPreferenceMyrrixBolt;
 import realrec.cbox.storm.proc.VideoPlayNormalizeBolt;
 import realrec.cbox.storm.source.MySQLVideoPlaySpout;
 import realrec.cbox.storm.utils.DebugBolt;
@@ -141,6 +142,8 @@ public class TopologyConfig extends Configuration {
 				"normalize", new Fields("user_id", "videoset_id"));
 		builder.setBolt("prefUpdt", new VideoSetPrefUpdtHBaseBolt())
 				.fieldsGrouping("hbase", new Fields("user_id", "videoset_id"));
+		builder.setBolt("myrrix", new UserPreferenceMyrrixBolt())
+				.shuffleGrouping("prefUpdt");
 		builder.setBolt("debug", new DebugBolt()).shuffleGrouping("prefUpdt");
 		return builder.createTopology();
 	}

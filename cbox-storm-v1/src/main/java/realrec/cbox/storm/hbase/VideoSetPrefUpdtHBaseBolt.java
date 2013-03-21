@@ -70,7 +70,7 @@ public class VideoSetPrefUpdtHBaseBolt extends BaseBasicBolt {
 			put(table3, videoSetId, userId, preference);
 			collector.emit(Arrays.<Object> asList(userId, videoSetId,
 					preference));
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new FailedException(e);
 		}
 	}

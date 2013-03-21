@@ -60,7 +60,7 @@ public class VideoPlayHBaseBolt extends BaseBasicBolt {
 				put(row, col, preference);
 				collector.emit(Arrays.<Object> asList(userId, videoSetId));
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new FailedException(e);
 		}
 	}

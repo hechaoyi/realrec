@@ -15,6 +15,7 @@ subprojects {
 		mysqlVer   = "5.1.24"
 		hbaseVer   = "0.94.2-cdh4.2.0"
 		hadoopVer  = "2.0.0-cdh4.2.0"
+		myrrixVer  = "0.10"
 	}
 	repositories {
 		mavenCentral()
@@ -74,6 +75,7 @@ project(":cbox-storm-v1") {
 		provided "org.slf4j:slf4j-log4j12:$slf4jVer"
 		compile  "org.mybatis:mybatis:$mybatisVer"
 		runtime  "mysql:mysql-connector-java:$mysqlVer"
+		compile  "net.myrrix:myrrix-client:$myrrixVer"
 		// HBase
 		compile "org.apache.hbase:hbase:$hbaseVer", { transitive = false }
 		compile "com.google.protobuf:protobuf-java:2.4.0a", { transitive = false }
