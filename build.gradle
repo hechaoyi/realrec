@@ -13,18 +13,30 @@ subprojects {
 		stormVer   = "0.8.2"
 		mybatisVer = "3.2.1"
 		mysqlVer   = "5.1.24"
+		hbaseVer   = "0.94.2-cdh4.2.0"
+		hadoopVer  = "2.0.0-cdh4.2.0"
 	}
 	repositories {
 		mavenCentral()
 		maven { url "http://clojars.org/repo/" }
-		maven { url "https://repository.cloudera.com/artifactory/cloudera-repos/" }
 		maven { url "http://download.oracle.com/maven/" }
+		maven { url "https://repository.cloudera.com/artifactory/cloudera-repos/" }
 	}
 	configurations {
 		compile.extendsFrom provided
 	}
-	jar.from {
-		(configurations.runtime-configurations.provided).collect { it.isDirectory() ? it : zipTree(it) }
+	task onejar(type: Jar, dependsOn: classes) {
+		from {
+			def list = []
+			def result = (configurations.runtime-configurations.provided).collect {
+				list.add(it.name)
+				it.isDirectory() ? it : zipTree(it)
+			}
+			gradle.taskGraph.whenReady { graph ->
+				if(graph.hasTask(onejar)) println "${project.name} deps in jar: ${list.unique().sort()}"
+			}
+			result + sourceSets.main.output
+		}
 	}
 	eclipse.classpath.noExportConfigurations += configurations.provided
 	eclipse.classpath.defaultOutputDir = file("$buildDir/output")
@@ -46,23 +58,29 @@ project(":cbox-metadata") {
 		compile "com.sleepycat:je:$bdbjeVer"
 		compile "com.google.guava:guava:$guavaVer"
 		compile "ch.qos.logback:logback-classic:$logbackVer"
-		compile  "org.mybatis:mybatis:$mybatisVer"
-		runtime  "mysql:mysql-connector-java:$mysqlVer"
+		compile "org.mybatis:mybatis:$mybatisVer"
+		runtime "mysql:mysql-connector-java:$mysqlVer"
 	}
 	mainClassName = "realrec.cbox.metadata.server.MetaDataServer"
-	jar.manifest.attributes["Main-Class"] = mainClassName
+	onejar.manifest.attributes["Main-Class"] = mainClassName
 }
 
 project(":cbox-storm-v1") {
 	apply plugin: "application"
 	dependencies {
-		compile project(":realrec-common")
+		compile  project(":realrec-common")
 		provided "storm:storm:$stormVer"
 		provided "com.google.guava:guava"
 		provided "org.slf4j:slf4j-log4j12:$slf4jVer"
 		compile  "org.mybatis:mybatis:$mybatisVer"
 		runtime  "mysql:mysql-connector-java:$mysqlVer"
+		// HBase
+		compile "org.apache.hbase:hbase:$hbaseVer", { transitive = false }
+		compile "com.google.protobuf:protobuf-java:2.4.0a"
+		compile "commons-configuration:commons-configuration:1.6"
+		compile "org.apache.hadoop:hadoop-common:$hadoopVer", { transitive = false }
+		compile "org.apache.hadoop:hadoop-auth:$hadoopVer", { transitive = false }
 	}
-	run.main = "realrec.cbox.storm.driver.LocalTopology"
-	jar.manifest.attributes["Main-Class"] = "realrec.cbox.storm.driver.RemoteTopology"
+	mainClassName = "realrec.cbox.storm.driver.LocalTopology"
+	onejar.manifest.attributes["Main-Class"] = "realrec.cbox.storm.driver.RemoteTopology"
 }

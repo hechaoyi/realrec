@@ -3,7 +3,8 @@ package realrec.cbox.storm.driver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import realrec.cbox.storm.preproc.VideoPlayNormalizeBolt;
+import realrec.cbox.storm.hbase.VideoPlayHBaseBolt;
+import realrec.cbox.storm.proc.VideoPlayNormalizeBolt;
 import realrec.cbox.storm.source.MySQLVideoPlaySpout;
 import realrec.cbox.storm.utils.DebugBolt;
 import realrec.common.config.Configuration;
@@ -132,10 +133,12 @@ public class TopologyConfig extends Configuration {
 
 	public StormTopology build() {
 		TopologyBuilder builder = new TopologyBuilder();
-		builder.setSpout("mysql", new MySQLVideoPlaySpout(), 1); // TODO conf
+		builder.setSpout("mysql", new MySQLVideoPlaySpout(), 1);
 		builder.setBolt("normalize", new VideoPlayNormalizeBolt(), 4)
-				.fieldsGrouping("mysql", new Fields("video_id")); // TODO conf
-		builder.setBolt("debug", new DebugBolt()).shuffleGrouping("normalize");
+				.fieldsGrouping("mysql", new Fields("video_id"));
+		builder.setBolt("hbase", new VideoPlayHBaseBolt(), 4).shuffleGrouping(
+				"normalize");
+		builder.setBolt("debug", new DebugBolt()).shuffleGrouping("hbase");
 		return builder.createTopology();
 	}
 

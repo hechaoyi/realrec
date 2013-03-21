@@ -1,4 +1,4 @@
-package realrec.cbox.storm.preproc;
+package realrec.cbox.storm.proc;
 
 import static realrec.cbox.storm.driver.TopologyConfig.DETAIL_CACHE_HOURS;
 import static realrec.cbox.storm.driver.TopologyConfig.HASH_CACHE_HOURS;
@@ -93,14 +93,15 @@ public class VideoPlayNormalizeBolt extends BaseBasicBolt {
 			int playedTime = seconds(input.getStringByField("played_time"));
 			if (Type.valueOf(input.getStringByField("type")) == Type.vod) {
 				int videoTime = lengths.get(videoId);
-				collector.emit(Lists.<Object> newArrayList(
-						hash("user", userId), hash("videoset", videoSetId),
-						hash("video", videoId),
-						scoreVOD(playedTime, videoTime), "vod"));
+				collector.emit(Lists
+						.<Object> newArrayList(hash("user", userId),
+								hash("videoset", videoSetId),
+								hash("video", videoId),
+								scoreVOD(playedTime, videoTime)));
 			} else {
 				collector.emit(Lists.<Object> newArrayList(
 						hash("user", userId), hash("videoset", videoSetId),
-						hash("video", videoId), scoreP2P(playedTime), "p2p"));
+						hash("video", videoId), scoreP2P(playedTime)));
 			}
 		} catch (Exception e) {
 			throw new FailedException(e);
@@ -142,7 +143,7 @@ public class VideoPlayNormalizeBolt extends BaseBasicBolt {
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
 		declarer.declare(new Fields("user_id", "videoset_id", "video_id",
-				"preference", "video_type"));
+				"preference"));
 	}
 
 }
