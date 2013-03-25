@@ -5,17 +5,19 @@ subprojects {
 	sourceCompatibility = "1.7"
 	ext {
 		nettyVer   = "4.0.0.CR1"
-		slf4jVer   = "1.7.4"
+		slf4jVer   = "1.7.5"
 		jacksonVer = "2.1.4"
 		bdbjeVer   = "5.0.73"
 		guavaVer   = "14.0.1"
-		logbackVer = "1.0.10"
+		logbackVer = "1.0.11"
 		stormVer   = "0.8.2"
 		mybatisVer = "3.2.1"
 		mysqlVer   = "5.1.24"
 		hbaseVer   = "0.94.2-cdh4.2.0"
 		hadoopVer  = "2.0.0-cdh4.2.0"
 		myrrixVer  = "0.10"
+		jerseyVer  = "1.17.1"
+		springVer  = "3.2.2.RELEASE"
 	}
 	repositories {
 		mavenCentral()
@@ -85,4 +87,19 @@ project(":cbox-storm-v1") {
 	}
 	mainClassName = "realrec.cbox.storm.driver.LocalTopology"
 	onejar.manifest.attributes["Main-Class"] = "realrec.cbox.storm.driver.RemoteTopology"
+}
+
+project(":cbox-restful-v1") {
+	apply plugin: "jetty"
+	dependencies {
+		compile project(":realrec-common")
+		compile "javax.ws.rs:jsr311-api:1.1.1"
+		compile "com.sun.jersey:jersey-core:$jerseyVer"
+		compile "com.sun.jersey:jersey-server:$jerseyVer"
+		compile "com.sun.jersey:jersey-servlet:$jerseyVer"
+		compile "com.sun.jersey:jersey-json:$jerseyVer"
+		compile "com.sun.jersey.contribs:jersey-spring:$jerseyVer"
+		compile "org.springframework:spring-web:$springVer"
+		compile "net.myrrix:myrrix-client:$myrrixVer"
+	}
 }

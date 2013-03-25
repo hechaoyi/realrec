@@ -8,4 +8,4 @@ metadataThreads: 4
 hashCacheHours: 6
 detailCacheHours: 6
 myrrixHost: localhost
-myrrixPort: 8080
+myrrixPort: 7070
