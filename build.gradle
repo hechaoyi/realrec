@@ -4,7 +4,7 @@ subprojects {
 	version = "1.0-SNAPSHOT"
 	sourceCompatibility = "1.7"
 	ext {
-		nettyVer   = "4.0.0.Beta3"
+		nettyVer   = "4.0.0.CR1"
 		slf4jVer   = "1.7.4"
 		jacksonVer = "2.1.4"
 		bdbjeVer   = "5.0.73"

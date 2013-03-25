@@ -1,5 +1,8 @@
 package realrec.cbox.storm.notice;
 
+import static realrec.cbox.storm.driver.TopologyConfig.MYRRIX_HOST;
+import static realrec.cbox.storm.driver.TopologyConfig.MYRRIX_PORT;
+
 import java.io.IOException;
 import java.util.Map;
 
@@ -23,8 +26,8 @@ public class UserPreferenceMyrrixBolt extends BaseBasicBolt {
 	public void prepare(Map conf, TopologyContext context) {
 		try {
 			MyrrixClientConfiguration mc = new MyrrixClientConfiguration();
-			mc.setHost("localhost");
-			mc.setPort(8080);
+			mc.setHost((String) conf.get(MYRRIX_HOST));
+			mc.setPort((int) (long) conf.get(MYRRIX_PORT));
 			recommender = new ClientRecommender(mc);
 		} catch (IOException e) {
 			throw new RuntimeException(e);

@@ -38,6 +38,10 @@ public class TopologyConfig extends Configuration {
 	private long hashCacheHours = 6;
 	@JsonProperty
 	private long detailCacheHours = 6;
+	@JsonProperty
+	private String myrrixHost = "localhost";
+	@JsonProperty
+	private long myrrixPort = 8080;
 
 	public String getName() {
 		return name;
@@ -103,14 +107,32 @@ public class TopologyConfig extends Configuration {
 		this.detailCacheHours = detailCacheHours;
 	}
 
+	public String getMyrrixHost() {
+		return myrrixHost;
+	}
+
+	public void setMyrrixHost(String myrrixHost) {
+		this.myrrixHost = myrrixHost;
+	}
+
+	public long getMyrrixPort() {
+		return myrrixPort;
+	}
+
+	public void setMyrrixPort(long myrrixPort) {
+		this.myrrixPort = myrrixPort;
+	}
+
 	@Override
 	public void initialize() throws Exception {
-		log.info("configuration loaded. "
-				+ "name: {}, mysqlBatchSize: {}, mysqlWaitMillis: {}, "
-				+ "metadataHosts: {}, metadataConns: {}, metadataThreads: {}, "
-				+ "hashCacheHours: {}, detailCacheHours: {}", name,
-				mysqlBatchSize, mysqlWaitMillis, metadataHosts, metadataConns,
-				metadataThreads, hashCacheHours, detailCacheHours);
+		log.info(
+				"configuration loaded. "
+						+ "name: {}, mysqlBatchSize: {}, mysqlWaitMillis: {}, "
+						+ "metadataHosts: {}, metadataConns: {}, metadataThreads: {}, "
+						+ "hashCacheHours: {}, detailCacheHours: {}, myrrixHost: {}, myrrixPort: {}",
+				name, mysqlBatchSize, mysqlWaitMillis, metadataHosts,
+				metadataConns, metadataThreads, hashCacheHours,
+				detailCacheHours, myrrixHost, myrrixPort);
 	}
 
 	public static final String MYSQL_BATCH_SIZE = "mysqlBatchSize";
@@ -120,6 +142,8 @@ public class TopologyConfig extends Configuration {
 	public static final String METADATA_THREADS = "metadataThreads";
 	public static final String HASH_CACHE_HOURS = "hashCacheHours";
 	public static final String DETAIL_CACHE_HOURS = "detailCacheHours";
+	public static final String MYRRIX_HOST = "myrrixHost";
+	public static final String MYRRIX_PORT = "myrrixPort";
 
 	public Config config() {
 		Config conf = new Config();
@@ -130,6 +154,8 @@ public class TopologyConfig extends Configuration {
 		conf.put(METADATA_THREADS, metadataThreads);
 		conf.put(HASH_CACHE_HOURS, hashCacheHours);
 		conf.put(DETAIL_CACHE_HOURS, detailCacheHours);
+		conf.put(MYRRIX_HOST, myrrixHost);
+		conf.put(MYRRIX_PORT, myrrixPort);
 		return conf;
 	}
 
