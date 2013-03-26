@@ -27,6 +27,12 @@ public class VideoService {
 		}
 	}
 
+	public VideoSetDetail videoSetDetail(String videoSetId) {
+		try (SqlSession session = sessionFactory.openSession()) {
+			return session.selectOne("Video.detail", videoSetId);
+		}
+	}
+
 	private static VideoService instance = null;
 
 	public static VideoService instance() {

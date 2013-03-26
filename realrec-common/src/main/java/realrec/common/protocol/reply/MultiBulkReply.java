@@ -11,7 +11,7 @@ public class MultiBulkReply implements Reply<Reply<?>[]> {
 	public static final byte MARKER = '*';
 	private Reply<?>[] repls;
 
-	public MultiBulkReply(Reply<?>[] repls) {
+	public MultiBulkReply(Reply<?>... repls) {
 		this.repls = repls;
 	}
 

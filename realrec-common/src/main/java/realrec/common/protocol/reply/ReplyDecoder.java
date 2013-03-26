@@ -25,7 +25,7 @@ public class ReplyDecoder extends ReplayingDecoder<Void> {
 		case MultiBulkReply.MARKER:
 			int size = readInt(in);
 			if (size < 0)
-				return new MultiBulkReply(null);
+				return new MultiBulkReply((Reply<?>[]) null);
 			Reply<?>[] repls = new Reply<?>[size];
 			for (int i = 0; i < size; i++)
 				repls[i] = (Reply<?>) decode(ctx, in);

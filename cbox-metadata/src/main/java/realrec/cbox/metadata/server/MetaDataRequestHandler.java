@@ -12,11 +12,13 @@ import realrec.cbox.metadata.hash.HashRecord;
 import realrec.cbox.metadata.hash.HashRecord.Domain;
 import realrec.cbox.metadata.hash.HashService;
 import realrec.cbox.metadata.video.VideoService;
+import realrec.cbox.metadata.video.VideoSetDetail;
 import realrec.common.protocol.command.Command;
 import realrec.common.protocol.reply.BulkReply;
 import realrec.common.protocol.reply.ErrorReply;
 import realrec.common.protocol.reply.IntegerReply;
 import realrec.common.protocol.reply.MultiBulkReply;
+import realrec.common.protocol.reply.Reply;
 import realrec.common.protocol.reply.StatusReply;
 
 @Sharable
@@ -60,6 +62,12 @@ public class MetaDataRequestHandler extends
 				else
 					ctx.write(length(tokens[1]));
 				break;
+			case "detail":
+				if (tokens.length < 2)
+					ctx.write(new ErrorReply("usage: detail <video_set_id>"));
+				else
+					ctx.write(detail(tokens[1]));
+				break;
 			case "ping":
 				ctx.write(StatusReply.PONG);
 				break;
@@ -82,18 +90,24 @@ public class MetaDataRequestHandler extends
 	private MultiBulkReply show(String hash) {
 		HashRecord hr = hashService.show(Long.parseLong(hash));
 		if (hr == null) {
-			return new MultiBulkReply(null);
+			return new MultiBulkReply((Reply<?>[]) null);
 		} else {
-			BulkReply[] repls = new BulkReply[2];
-			repls[0] = new BulkReply(hr.getOrigin());
-			repls[1] = new BulkReply(hr.getDomain().name());
-			return new MultiBulkReply(repls);
+			return new MultiBulkReply(new BulkReply(hr.getOrigin()),
+					new BulkReply(hr.getDomain().name()));
 		}
 	}
 
 	private BulkReply length(String videoId) {
 		String length = videoService.videoLength(videoId);
 		return new BulkReply(length);
+	}
+
+	private MultiBulkReply detail(String videoSetId) {
+		VideoSetDetail detail = videoService.videoSetDetail(videoSetId);
+		if (detail == null)
+			return new MultiBulkReply((Reply<?>[]) null);
+		return new MultiBulkReply(new BulkReply(detail.getLogo()),
+				new BulkReply(detail.getTitle()));
 	}
 
 	@Override

@@ -6,4 +6,9 @@
 	<select id="length" parameterType="string" resultType="string">
 		select video_program_length from cbox_video where video_id=#{videoId}
 	</select>
+	<select id="detail" parameterType="string" resultType="realrec.cbox.metadata.video.VideoSetDetail">
+		select cvs.LOGO_IMAGE logo, ifnull(cfvc.VIDEOSET_NEW_NAME, cvs.COLUMN_NAME) title
+		from cbox_videoset cvs left join cbox_folder_video_contains cfvc on cvs.SCHEDULE_ID = cfvc.VIDEO_ID
+		where cvs.SCHEDULE_ID = #{videoSetId}
+	</select>
 </mapper>
