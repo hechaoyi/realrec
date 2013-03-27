@@ -7,12 +7,12 @@ public class VideoSetDetail {
 	private String title;
 	private int content_type_id;
 
-	public VideoSetDetail(String content_id) {
-		this.content_id = content_id;
-	}
-
 	public String getContent_id() {
 		return content_id;
+	}
+
+	public void setContent_id(String content_id) {
+		this.content_id = content_id;
 	}
 
 	public String getLogo() {

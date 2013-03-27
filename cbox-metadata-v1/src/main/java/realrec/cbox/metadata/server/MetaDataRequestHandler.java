@@ -64,7 +64,7 @@ public class MetaDataRequestHandler extends
 				break;
 			case "detail":
 				if (tokens.length < 2)
-					ctx.write(new ErrorReply("usage: detail <video_set_id>"));
+					ctx.write(new ErrorReply("usage: detail <id>"));
 				else
 					ctx.write(detail(tokens[1]));
 				break;
@@ -89,12 +89,10 @@ public class MetaDataRequestHandler extends
 
 	private MultiBulkReply show(String hash) {
 		HashRecord hr = hashService.show(Long.parseLong(hash));
-		if (hr == null) {
+		if (hr == null)
 			return new MultiBulkReply((Reply<?>[]) null);
-		} else {
-			return new MultiBulkReply(new BulkReply(hr.getOrigin()),
-					new BulkReply(hr.getDomain().name()));
-		}
+		return new MultiBulkReply(new BulkReply(hr.getOrigin()), new BulkReply(
+				hr.getDomain().name()));
 	}
 
 	private BulkReply length(String videoId) {
@@ -102,12 +100,15 @@ public class MetaDataRequestHandler extends
 		return new BulkReply(length);
 	}
 
-	private MultiBulkReply detail(String videoSetId) {
-		VideoSetDetail detail = videoService.videoSetDetail(videoSetId);
+	private MultiBulkReply detail(String id) {
+		HashRecord hr = hashService.show(Long.parseLong(id));
+		if (hr == null)
+			return new MultiBulkReply((Reply<?>[]) null);
+		VideoSetDetail detail = videoService.videoSetDetail(hr.getOrigin());
 		if (detail == null)
 			return new MultiBulkReply((Reply<?>[]) null);
-		return new MultiBulkReply(new BulkReply(detail.getLogo()),
-				new BulkReply(detail.getTitle()));
+		return new MultiBulkReply(new BulkReply(hr.getOrigin()), new BulkReply(
+				detail.getLogo()), new BulkReply(detail.getTitle()));
 	}
 
 	@Override

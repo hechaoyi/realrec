@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import realrec.common.protocol.client.UnifiedClient;
 import realrec.common.protocol.command.Command;
-import realrec.common.protocol.reply.MultiBulkReply;
+import realrec.common.protocol.reply.BulkReply;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -26,33 +26,50 @@ public class MetaDataStore {
 	private int conns;
 	@Value("${metadata.threads}")
 	private int threads;
-	@Value("${metadata.detail.cache.hours}")
-	private long detailsCacheHours;
-	private LoadingCache<String, VideoSetDetail> details;
+	@Value("${metadata.cache.hours}")
+	private long cacheHours;
+	private LoadingCache<Long, VideoSetDetail> details;
+	private LoadingCache<String, Long> ids;
 
 	@PostConstruct
 	public void init() {
 		store = new UnifiedClient(hosts, conns, threads);
 		details = CacheBuilder.newBuilder()
-				.expireAfterAccess(detailsCacheHours, TimeUnit.HOURS)
-				.build(new CacheLoader<String, VideoSetDetail>() {
+				.expireAfterAccess(cacheHours, TimeUnit.HOURS)
+				.build(new CacheLoader<Long, VideoSetDetail>() {
 					@Override
-					public VideoSetDetail load(String key) throws Exception {
-						VideoSetDetail vsd = new VideoSetDetail(key);
-						MultiBulkReply repl = (MultiBulkReply) store.send(
-								new Command("detail", key)).get();
-						if (repl.data() == null || repl.data().length < 2)
+					public VideoSetDetail load(Long key) throws Exception {
+						VideoSetDetail vsd = new VideoSetDetail();
+						BulkReply[] repl = (BulkReply[]) store
+								.send(new Command("detail", String.valueOf(key)))
+								.get().data();
+						if (repl == null || repl.length < 3)
 							return vsd;
-						vsd.setLogo((String) repl.data()[0].data());
-						vsd.setTitle((String) repl.data()[1].data());
+						vsd.setContent_id(repl[0].data());
+						vsd.setLogo(repl[1].data());
+						vsd.setTitle(repl[2].data());
 						vsd.setContent_type_id(3);
 						return vsd;
 					}
 				});
+		ids = CacheBuilder.newBuilder()
+				.expireAfterAccess(cacheHours, TimeUnit.HOURS)
+				.build(new CacheLoader<String, Long>() {
+					@Override
+					public Long load(String key) throws Exception {
+						return (Long) store
+								.send(new Command("hash", "user", key)).get()
+								.data();
+					}
+				});
 	}
 
-	public VideoSetDetail detail(String videoSetId) throws ExecutionException {
+	public VideoSetDetail detail(long videoSetId) throws ExecutionException {
 		return details.get(videoSetId);
+	}
+
+	public long hash(String clientid) throws ExecutionException {
+		return ids.get(clientid);
 	}
 
 }

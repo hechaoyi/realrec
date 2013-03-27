@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import realrec.cbox.restful.service.RecommendService;
+import realrec.cbox.restful.service.RecommendService.UserIdType;
 
 @Component
 @Path("/rec")
@@ -25,13 +26,16 @@ public class RecommendResource {
 	private RecommendService service;
 
 	@GET
-	public RecommendResult recommend(@QueryParam("userid") long userid,
+	public RecommendResult recommend(@QueryParam("clientid") String clientid,
+			@QueryParam("userid") String userid,
 			@DefaultValue("0") @QueryParam("start") int start,
 			@DefaultValue("10") @QueryParam("limit") int limit) {
-		if (userid <= 0 || start < 0 || limit <= 0)
-			return new RecommendResult("parameters: userid,start,limit");
+		if ((clientid == null && userid == null) || start < 0 || limit <= 0)
+			return new RecommendResult(
+					"parameters: clientid/userid,start,limit");
 		try {
-			return service.recommend(userid, start, limit);
+			return service.recommend(UserIdType.clientid, clientid, start,
+					limit);
 		} catch (Exception e) {
 			log.warn("service error", e);
 			return new RecommendResult(e.getMessage());

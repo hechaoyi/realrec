@@ -1,20 +1,19 @@
 package realrec.cbox.restful.resource;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.mahout.cf.taste.recommender.RecommendedItem;
+import realrec.cbox.restful.data.VideoSetDetail;
 
 public class RecommendResult {
 
 	private boolean ok;
 	private String msg;
-	private List<RecommendedItem> items;
+	private List<VideoSetDetail> items;
 
-	public RecommendResult() {
+	public RecommendResult(List<VideoSetDetail> items) {
 		this.ok = true;
 		this.msg = "ok";
-		this.items = new ArrayList<>();
+		this.items = items;
 	}
 
 	public RecommendResult(String errorMsg) {
@@ -38,11 +37,11 @@ public class RecommendResult {
 		this.msg = msg;
 	}
 
-	public List<RecommendedItem> getItems() {
+	public List<VideoSetDetail> getItems() {
 		return items;
 	}
 
-	public void setItems(List<RecommendedItem> items) {
+	public void setItems(List<VideoSetDetail> items) {
 		this.items = items;
 	}
 
