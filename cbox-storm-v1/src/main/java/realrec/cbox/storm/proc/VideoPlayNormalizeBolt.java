@@ -19,8 +19,6 @@ import org.joda.time.format.PeriodFormatterBuilder;
 import realrec.cbox.storm.source.VideoPlay.Type;
 import realrec.common.protocol.client.UnifiedClient;
 import realrec.common.protocol.command.Command;
-import realrec.common.protocol.reply.BulkReply;
-import realrec.common.protocol.reply.IntegerReply;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.BasicOutputCollector;
 import backtype.storm.topology.FailedException;
@@ -57,9 +55,9 @@ public class VideoPlayNormalizeBolt extends BaseBasicBolt {
 						int idx = key.indexOf(':');
 						String domain = key.substring(0, idx);
 						String origin = key.substring(idx + 1);
-						IntegerReply reply = (IntegerReply) metadata.send(
-								new Command("hash", domain, origin)).get();
-						return reply.data();
+						return (Long) metadata
+								.send(new Command("hash", domain, origin))
+								.get().data();
 					}
 				});
 		lengths = CacheBuilder
@@ -69,9 +67,9 @@ public class VideoPlayNormalizeBolt extends BaseBasicBolt {
 				.build(new CacheLoader<String, Integer>() {
 					@Override
 					public Integer load(String key) throws Exception {
-						BulkReply reply = (BulkReply) metadata.send(
-								new Command("length", key)).get();
-						return seconds(reply.data());
+						String length = (String) metadata
+								.send(new Command("length", key)).get().data();
+						return seconds(length);
 					}
 				});
 		periodFormatter = new PeriodFormatterBuilder().appendHours()

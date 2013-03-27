@@ -45,7 +45,7 @@ subprojects {
 	eclipse.classpath.defaultOutputDir = file("$buildDir/output")
 }
 
-project(":realrec-common") {
+project(":realrec-common-v1") {
 	dependencies {
 		compile "io.netty:netty-codec:$nettyVer"
 		compile "org.slf4j:slf4j-api:$slf4jVer"
@@ -54,10 +54,10 @@ project(":realrec-common") {
 	}
 }
 
-project(":cbox-metadata") {
+project(":cbox-metadata-v1") {
 	apply plugin: "application"
 	dependencies {
-		compile project(":realrec-common")
+		compile project(":realrec-common-v1")
 		compile "com.sleepycat:je:$bdbjeVer"
 		compile "com.google.guava:guava:$guavaVer"
 		compile "ch.qos.logback:logback-classic:$logbackVer"
@@ -71,7 +71,7 @@ project(":cbox-metadata") {
 project(":cbox-storm-v1") {
 	apply plugin: "application"
 	dependencies {
-		compile  project(":realrec-common")
+		compile  project(":realrec-common-v1")
 		provided "storm:storm:$stormVer"
 		provided "com.google.guava:guava"
 		provided "org.slf4j:slf4j-log4j12:$slf4jVer"
@@ -92,7 +92,7 @@ project(":cbox-storm-v1") {
 project(":cbox-restful-v1") {
 	apply plugin: "jetty"
 	dependencies {
-		compile project(":realrec-common")
+		compile project(":realrec-common-v1")
 		compile "javax.ws.rs:jsr311-api:1.1.1"
 		compile "com.sun.jersey:jersey-core:$jerseyVer"
 		compile "com.sun.jersey:jersey-server:$jerseyVer"

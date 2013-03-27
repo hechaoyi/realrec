@@ -1,13 +1,11 @@
 rootProject.name = "realrec"
 
 // realrec
-include "realrec-common"
-include "realrec-mapred"
-include "realrec-service"
+include "realrec-common-v1"
+//include "realrec-mapred"
+//include "realrec-service"
 
 // cbox
 include "cbox-storm-v1"
-include "cbox-storm-v2"
-include "cbox-metadata"
+include "cbox-metadata-v1"
 include "cbox-restful-v1"
-include "cbox-restful-v2"

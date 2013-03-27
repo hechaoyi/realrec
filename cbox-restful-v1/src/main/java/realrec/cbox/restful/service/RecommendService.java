@@ -10,9 +10,11 @@ import net.myrrix.client.MyrrixClientConfiguration;
 import net.myrrix.common.MyrrixRecommender;
 
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import realrec.cbox.restful.data.MetaDataStore;
 import realrec.cbox.restful.resource.RecommendResult;
 
 @Service
@@ -23,6 +25,8 @@ public class RecommendService {
 	private String host;
 	@Value("${myrrix.port}")
 	private int port;
+	@Autowired
+	private MetaDataStore metadata;
 
 	@PostConstruct
 	public void init() throws IOException {
