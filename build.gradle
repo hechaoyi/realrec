@@ -11,11 +11,11 @@ subprojects {
 		guavaVer   = "14.0.1"
 		logbackVer = "1.0.11"
 		stormVer   = "0.8.2"
-		mybatisVer = "3.2.1"
+		mybatisVer = "3.2.2"
 		mysqlVer   = "5.1.24"
 		hbaseVer   = "0.94.2-cdh4.2.0"
 		hadoopVer  = "2.0.0-cdh4.2.0"
-		myrrixVer  = "0.10"
+		myrrixVer  = "0.11"
 		jerseyVer  = "1.17.1"
 		springVer  = "3.2.2.RELEASE"
 	}
